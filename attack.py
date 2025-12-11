@@ -1,46 +1,36 @@
 # attack.py
-import numpy as np
-
 
 class SlowModificationAttack:
-"""Attack that slowly corrupts the actuator command over multiple control cycles.
-It needs `required_time` seconds of undisturbed execution to reach full effect.
-"""
-def __init__(self, required_time=1.0, dt=0.01, max_bias=5.0):
-self.required_time = required_time
-self.dt = dt
-self.progress = 0.0
-self.max_bias = max_bias
+    """Attack that slowly corrupts the actuator command over multiple control cycles."""
 
+    def __init__(self, required_time, dt, max_bias):
+        self.required_time = required_time
+        self.dt = dt
+        self.max_bias = max_bias
+        self.elapsed = 0.0
 
-def reset(self):
-self.progress = 0.0
+    def reset(self):
+        self.elapsed = 0.0
 
-
-def step(self, nominal_command):
-# If attack is not complete, gradually bias the command
-if self.progress < self.required_time:
-self.progress += self.dt
-frac = self.progress / self.required_time
-bias = frac * self.max_bias
-return nominal_command + bias
-else:
-# fully corrupted
-return nominal_command + self.max_bias
-
-
+    def step(self, time, thrust):
+        # Apply bias slowly over time
+        self.elapsed += self.dt
+        if self.elapsed >= self.required_time:
+            return thrust + self.max_bias
+        return thrust
 
 
 class InstantOverrideAttack:
-"""Attack that instantly overrides the actuator (for testing worst-case).
-"""
-def __init__(self, override_value=20.0, start_time=2.0):
-self.override = override_value
-self.start_time = start_time
+    """Attack that instantly overrides actuator output at a specified start time."""
 
+    def __init__(self, override_value, start_time):
+        self.override_value = override_value
+        self.start_time = start_time
 
-def step(self, t, nominal_command):
-if t >= self.start_time:
-return self.override
-else:
-return nominal_command
+    def reset(self):
+        pass
+
+    def step(self, time, thrust):
+        if time >= self.start_time:
+            return self.override_value
+        return thrust
