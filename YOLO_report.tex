@@ -1,0 +1,168 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{YOLO: Frequently Resetting Cyber-Physical Systems for Security}
+\author{Your Names Here}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+Cyber-physical systems (CPS), such as drones, are vulnerable to cyberattacks targeting sensors or actuators, which can compromise their safe operation. The YOLO (You Only Live Once) approach proposes frequent system resets as a defense mechanism: by periodically restarting the CPS, the impact of malicious interventions is limited, preventing long-term deviations and failures.  
+
+In this project, we implement and evaluate YOLO for a 1D drone altitude control system, testing its effectiveness against different attack types and reset intervals.
+
+\section{Methodology}
+
+\subsection{System Model}
+\begin{itemize}
+    \item \textbf{Drone Dynamics:} 1D vertical dynamics model (altitude) with mass $m=1$ kg and gravity $g=9.81\text{ m/s}^2$. Altitude $z$ and velocity $v$ are updated as:
+    \[
+    a = \frac{\text{thrust} - mg}{m},\quad
+    v_{t+1} = v_t + a \cdot dt,\quad
+    z_{t+1} = z_t + v_{t+1} \cdot dt
+    \]
+    \item \textbf{Controller:} PID controller computes thrust:
+    \[
+    u = K_p e + K_i \int e\,dt + K_d \frac{de}{dt},\quad K_p=10.0, K_i=0.5, K_d=2.0
+    \]
+    \item \textbf{Attacks:} 
+        \begin{enumerate}
+            \item None: no attack.
+            \item Slow Modification: gradually biases thrust.
+            \item Instant Override: abruptly overrides thrust at specified time.
+        \end{enumerate}
+    \item \textbf{Reset Manager:} Periodically resets controller, drone, and attack state. Tested reset intervals: None, 2.0 s, 1.0 s, 0.5 s, 0.2 s.
+\end{itemize}
+
+\subsection{Simulation Parameters}
+\begin{itemize}
+    \item Duration: 10 s
+    \item Time step: $dt=0.01$ s
+    \item Setpoint: 1.0 m
+    \item Metrics: Altitude vs setpoint, RMSE
+    \item Output: 15 PNG plots stored in \texttt{results/}
+\end{itemize}
+
+\section{Experiments}
+Each combination of attack type and reset interval was simulated, producing 15 experiments in total.
+
+\section{Results}
+
+\subsection{No Attack (none)}
+Without attack, the drone tracks the setpoint smoothly. Frequent resets introduce minor temporary deviations. RMSE remains minimal.
+
+\subsection{Slow Modification Attack (slow)}
+Without resets, the altitude drifts gradually. Frequent resets reduce this drift, lowering RMSE and improving system recovery.
+
+\subsection{Instant Override Attack (instant)}
+Abrupt thrust overrides cause immediate altitude jumps without resets. Frequent resets restore altitude quickly, significantly reducing RMSE.
+
+\subsection{Figures}
+
+% ==================== NONE ATTACK ====================
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{results/none_reset_None_altitude.png}
+    \caption{No attack, no resets. RMSE = [insert RMSE]}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{results/none_reset_2.0_altitude.png}
+    \caption{No attack, reset every 2.0 s. RMSE = [insert RMSE]}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{results/none_reset_1.0_altitude.png}
+    \caption{No attack, reset every 1.0 s. RMSE = [insert RMSE]}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{results/none_reset_0.5_altitude.png}
+    \caption{No attack, reset every 0.5 s. RMSE = [insert RMSE]}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{results/none_reset_0.2_altitude.png}
+    \caption{No attack, reset every 0.2 s. RMSE = [insert RMSE]}
+\end{figure}
+
+% ==================== SLOW ATTACK ====================
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{results/slow_reset_None_altitude.png}
+    \caption{Slow attack, no resets. RMSE = [insert RMSE]}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{results/slow_reset_2.0_altitude.png}
+    \caption{Slow attack, reset every 2.0 s. RMSE = [insert RMSE]}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{results/slow_reset_1.0_altitude.png}
+    \caption{Slow attack, reset every 1.0 s. RMSE = [insert RMSE]}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{results/slow_reset_0.5_altitude.png}
+    \caption{Slow attack, reset every 0.5 s. RMSE = [insert RMSE]}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{results/slow_reset_0.2_altitude.png}
+    \caption{Slow attack, reset every 0.2 s. RMSE = [insert RMSE]}
+\end{figure}
+
+% ==================== INSTANT ATTACK ====================
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{results/instant_reset_None_altitude.png}
+    \caption{Instant attack, no resets. RMSE = [insert RMSE]}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{results/instant_reset_2.0_altitude.png}
+    \caption{Instant attack, reset every 2.0 s. RMSE = [insert RMSE]}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{results/instant_reset_1.0_altitude.png}
+    \caption{Instant attack, reset every 1.0 s. RMSE = [insert RMSE]}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{results/instant_reset_0.5_altitude.png}
+    \caption{Instant attack, reset every 0.5 s. RMSE = [insert RMSE]}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{results/instant_reset_0.2_altitude.png}
+    \caption{Instant attack, reset every 0.2 s. RMSE = [insert RMSE]}
+\end{figure}
+
+\section{Discussion}
+Periodic resets (YOLO) improve system resilience:
+
+\begin{itemize}
+    \item Slow attacks are mitigated gradually; frequent resets reduce drift and RMSE.
+    \item Instant attacks are almost fully neutralized with frequent resets.
+    \item Trade-off: minor disturbance under no attack, but high security benefit under attack.
+\end{itemize}
+
+\section{Conclusion}
+YOLO is an effective, lightweight defense for CPS. Frequent resets limit attack impact while maintaining acceptable performance. Future work includes multi-dimensional drone models and adaptive reset intervals.
+
+\section{References}
+\begin{enumerate}
+    \item Yang, L. et al., \textit{YOLO: Frequently Resetting Cyber-Physical Systems for Security}, 20XX.
+    \item Matplotlib Documentation: \texttt{https://matplotlib.org/stable/contents.html}
+    \item Python 3 Documentation: \texttt{https://docs.python.org/3/}
+\end{enumerate}
+
+\end{document}
