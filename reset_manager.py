@@ -1,29 +1,24 @@
 # reset_manager.py
-import time
-
 
 class ResetManager:
-"""Manages periodic resets. In simulation, a reset re-initializes controller internal state
-and optionally stalls control for `reset_duration` seconds (simulated downtime).
-"""
-def __init__(self, reset_interval=1.0, reset_duration=0.02):
-self.reset_interval = reset_interval
-self.reset_duration = reset_duration
-self.last_reset = 0.0
-self.next_reset = reset_interval
+    """Manages periodic resets. In simulation, a reset re-initializes controller internal state."""
 
+    def __init__(self, reset_interval):
+        self.reset_interval = reset_interval
+        self.last_reset_time = 0.0
 
-def should_reset(self, t):
-return t >= self.next_reset
+    def should_reset(self, time):
+        if self.reset_interval is None:
+            return False
+        return (time - self.last_reset_time) >= self.reset_interval
 
-
-def perform_reset(self, controller, drone, attack=None):
-# reset controller internals
-controller.reset()
-# optional: reset drone sensors/state? we choose not to reset physical state
-if attack is not None:
-attack.reset()
-# schedule next
-self.last_reset = self.next_reset
-self.next_reset += self.reset_interval
-return self.reset_duration
+    def perform_reset(self, controller, drone, attack=None):
+        """Perform a reset: reset controller, optionally reset attack, return downtime duration."""
+        # For simplicity, assume downtime = 1 control step
+        downtime = controller.dt
+        controller.reset()
+        drone.reset()
+        if attack is not None:
+            attack.reset()
+        self.last_reset_time = self.last_reset_time + self.reset_interval
+        return downtime
